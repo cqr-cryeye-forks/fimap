@@ -13,6 +13,11 @@ import socket
 import urllib
 import urllib2
 import httplib
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 BROWSERS = (
     # Top most popular browsers in my access.log on 2009.02.12
@@ -69,7 +74,7 @@ class PoolHTTPConnection(httplib.HTTPConnection):
 
 class PoolHTTPHandler(urllib2.HTTPHandler):
     def http_open(self, req):
-        return self.do_open(PoolHTTPConnection, req)
+        return self.do_open(PoolHTTPConnection, req, context=ctx)
 
 class Browser(object):
     def __init__(self, user_agent=BROWSERS[0], debug=False, use_pool=False):
@@ -84,7 +89,7 @@ class Browser(object):
         handlers = [PoolHTTPHandler]
         opener = urllib2.build_opener(*handlers)
         if data: data = urllib.urlencode(data)
-        request = urllib2.Request(url, data, self.headers)
+        request = urllib2.Request(url, data, self.headers, context=ctx)
         try:
             response = opener.open(request)
             return response.read()

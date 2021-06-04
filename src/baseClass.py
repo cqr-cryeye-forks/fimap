@@ -34,7 +34,7 @@ import sys
 
 DEFAULT_AGENT = "fimap.googlecode.com"
 
-import urllib, httplib, copy, urllib2
+import urllib, httplib, copy
 import string,random,os,socket, os.path
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
@@ -42,6 +42,11 @@ __date__ ="$30.08.2009 20:02:04$"
 
 import urllib2
 import string,random,os,socket
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 new_stuff = {}
 
@@ -622,7 +627,7 @@ class Browser(object):
         headers = None
         response = None
 
-        request = urllib2.Request(url, data, self.headers)
+        request = urllib2.Request(url, data, self.headers, context=ctx)
         try:
             try:
                 response = opener.open(request)

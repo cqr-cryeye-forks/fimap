@@ -21,6 +21,11 @@
 import os.path
 from xgoogle.BeautifulSoup import BeautifulSoup
 import os, urllib2, urllib, socket
+import ssl
+
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 __author__="Iman Karim(ikarim2s@smail.inf.fh-brs.de)"
 __date__ ="$09.09.2009 21:52:30$"
@@ -122,22 +127,28 @@ class crawler:
     def __simpleGetRequest(self, URL, TimeOut=10):
         try:
             try:
-                opener = urllib2.build_opener()
-                opener.addheaders = [('User-agent', self.config["p_useragent"])]
-                f = opener.open(URL, timeout=TimeOut) # TIMEOUT
+                # opener = urllib2.build_opener()
+                # opener.addheaders = [('User-agent', self.config["p_useragent"])]
+
+
+                headers = ('User-agent', self.config["p_useragent"])
+                req = urllib2.Request(URL)
+                req.add_header('User-agent', self.config["p_useragent"])
+                # f = opener.open(URL, timeout=TimeOut, context=ctx) # TIMEOUT
+                f = urllib2.urlopen(req, timeout=TimeOut, context=ctx) # TIMEOUT
                 ret = f.read()
                 f.close()
                 return(ret)
-            except TypeError, err:
-                try:
-                    # Python 2.5 compatiblity
-                    socket.setdefaulttimeout(TimeOut)
-                    f = opener.open(URL)
-                    ret = f.read()
-                    f.close()
-                    return(ret)
-                except Exception, err:
-                    raise
+            # except TypeError, err:
+            #     try:
+            #         # Python 2.5 compatiblity
+            #         socket.setdefaulttimeout(TimeOut)
+            #         f = opener.open(URL)
+            #         ret = f.read()
+            #         f.close()
+            #         return(ret)
+            #     except Exception, err:
+            #         raise
             except:
                 raise
 
